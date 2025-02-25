@@ -1,0 +1,34 @@
+import jwt, { JwtPayload } from "jsonwebtoken"; // Ensure you have this package installed
+import { NextRequest, NextResponse } from "next/server";
+
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get("authToken")?.value;
+  // Define protected routes
+  const adminRoutes = ["/management/dashboard", "/management/tickets", "/management/profile"];
+  const userRoutes = ["/user/dashboard", "/user/tickets", "/user/profile"];
+  // If there's no authToken, redirect to the login page
+  if (!token) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload; // Explicitly assert as JwtPayload
+    const role = decoded.role as string; // Ensure role is properly typed
+    const isAdminRoute = adminRoutes.some((route) => req.nextUrl.pathname.startsWith(route));
+    const isUserRoute = userRoutes.some((route) => req.nextUrl.pathname.startsWith(route));
+    // Redirect users to their respective dashboards if they try to access the login page
+    if (req.nextUrl.pathname === "/auth/login") {
+      return NextResponse.redirect(new URL(role === "admin" ? "/management/dashboard" : "/user/dashboard", req.url));
+    }
+    // Ensure users can only access their allowed routes
+    if ((isAdminRoute && role !== "admin") || (isUserRoute && role !== "user")) {
+      return NextResponse.redirect(new URL("/unauthorized", req.url)); // Redirect to an unauthorized page
+    }
+  } catch (error) {
+    return NextResponse.redirect(new URL("/auth/login", req.url)); // Redirect to login if token is invalid
+  }
+  return NextResponse.next();
+}
+// Apply middleware to admin and user routes
+export const config = {
+  matcher: ["/management/:path*", "/user/:path*"],
+};

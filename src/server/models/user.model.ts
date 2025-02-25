@@ -18,6 +18,12 @@ const UserSchema = new Schema(
 			type: String,
 			required: [true, "Password is required"],
 		},
+		role: {
+      type: String,
+      enum: ["ADMIN", "USER", "MANAGER", "TECH_SUPPORT", "GUEST"],
+      default: "USER",
+      required: [true, "Role is required"],
+    },
 	},
 	{
 		timestamps: true, // Adds createdAt and updatedAt timestamps automatically
