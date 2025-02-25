@@ -22,8 +22,6 @@ jobs:
             -f ref=main \
             -f environment=production \
             -f description="Deploying to production" \
-            -f auto_merge=false \
-            -f required_contexts="[]" \
             > deployment.json
           DEPLOYMENT_ID=$(jq -r '.id' deployment.json)
           echo "Deployment ID: $DEPLOYMENT_ID"
