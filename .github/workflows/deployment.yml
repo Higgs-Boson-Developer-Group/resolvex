@@ -10,16 +10,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Create a deployment record using peter-evans/create-deployment
-      - name: Create Deployment
+      - name: Create Deployment using GitHub CLI
         id: create_deployment
-        uses: peter-evans/create-deployment@v1
-        with:
-          ref: main
-          environment: production
-          description: "Deploying to production"
-          auto_merge: false
-          required_contexts: "[]"
+        run: |
+          # Create a deployment record via the GitHub CLI
+          gh api repos/${{ github.repository }}/deployments \
+            -f ref=main \
+            -f environment=production \
+            -f description="Deploying to production" \
+            -f auto_merge=false \
+            -f required_contexts="[]" \
+            > deployment.json
+          DEPLOYMENT_ID=$(jq -r '.id' deployment.json)
+          echo "Deployment ID: $DEPLOYMENT_ID"
+          echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
 
       - name: Print Secret Variables (Masked)
         run: |
@@ -40,7 +44,6 @@ jobs:
             npm run build
             pm2 restart resolveX
 
-      # After a successful deploy, update the deployment status
       - name: Update Deployment Status to Success
         run: |
           DEPLOYMENT_ID=${{ steps.create_deployment.outputs.deployment_id }}
