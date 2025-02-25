@@ -12,6 +12,8 @@ jobs:
 
       - name: Create Deployment using GitHub CLI
         id: create_deployment
+        env:
+         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create a deployment record via the GitHub CLI
           gh api repos/${{ github.repository }}/deployments \
