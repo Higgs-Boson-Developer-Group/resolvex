@@ -9,9 +9,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout another repository
         uses: actions/checkout@v3
-
+        with:
+         repository: Higgs-Boson-Developer-Group/resolvex
+         token: ${{ secrets.YOUR_PERSONAL_ACCESS_TOKEN }}
       - name: Create Deployment using GitHub CLI
         id: create_deployment
         env:
