@@ -1,5 +1,11 @@
 "use client";
-export default async function Ticket({ params }: { params: { id?: string } }) {
-  const { id } = await params;
+
+interface TicketProps {
+  params: {
+    id: string; // id is required, not optional
+  };
+}
+
+export default function Ticket({ params: { id } }: TicketProps) {
   return <>Ticket {id}</>;
 }

@@ -1,0 +1,31 @@
+name: Deploy to VPS
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Print Secret Variables (Masked)
+        run: |
+          echo "VPS_HOST: ${{ secrets.VPS_HOST }}"
+          echo "VPS_USER: ${{ secrets.VPS_USER }}"
+          echo "VPS_SSH_KEY: [MASKED]"  # Avoid printing the private key
+
+      - name: deploy app
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: "${{ secrets.VPS_SSH_KEY }}"
+          script: |
+            cd ~/production/resolveX
+            git pull origin main
+            npm i
+            npm run build
+            pm2 restart resolveX
