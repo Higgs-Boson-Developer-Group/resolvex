@@ -23,7 +23,8 @@ jobs:
                   "ref": "main",
                   "environment": "production",
                   "description": "Deploying to production",
-                  "auto_merge": false
+                  "auto_merge": false,
+                  "required_contexts": []
                 }')
           DEPLOYMENT_ID=$(echo "$RESPONSE" | jq -r '.id')
           echo "Deployment ID: $DEPLOYMENT_ID"
