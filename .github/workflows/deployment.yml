@@ -6,28 +6,20 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        # Create a deployment record
+
+      # Create a deployment record using peter-evans/create-deployment
       - name: Create Deployment
         id: create_deployment
-        run: |
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/deployments \
-            -d '{
-                "ref": "main",
-                "environment": "production",
-                "description": "Deploying to production",
-                "auto_merge": false,
-                "required_contexts": []
-                }')
-            DEPLOYMENT_ID=$(echo "$RESPONSE" | jq -r '.id')
-          echo "Deployment ID: $DEPLOYMENT_ID"
-          echo "deployment_id=${DEPLOYMENT_ID}" >> $GITHUB_OUTPUT
+        uses: peter-evans/create-deployment@v1
+        with:
+          ref: main
+          environment: production
+          description: "Deploying to production"
+          auto_merge: false
+          required_contexts: "[]"
 
       - name: Print Secret Variables (Masked)
         run: |
@@ -59,5 +51,5 @@ jobs:
             -d '{
                   "state": "success",
                   "description": "Deployment finished successfully",
-                  "environment_url": "https://your-production-url.com"
+                  "environment_url": "https://resolvex.cloudmateria.com"
                 }'
